@@ -1,0 +1,10 @@
+$kind: http-request
+name: Get Current User
+url: http://localhost:8080/api/auth/me
+method: GET
+headers:
+  - key: Authorization
+    value: Bearer {{supabase_service_role_api_key_0ubj}}
+  - key: Authorization
+    value: Bearer {{supabase_service_role_api_key_09n2}}
+order: 2584947135782531

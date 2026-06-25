@@ -1,0 +1,11 @@
+$kind: collection
+name: Enterprise IAM Platform
+variables:
+  - key: supabase_service_role_api_key_09n2
+    secret: true
+  - key: supabase_service_role_api_key_0ubj
+    secret: true
+  - key: bearer_token_1ci4
+    secret: true
+  - key: bearer_token_16m4
+    secret: true
