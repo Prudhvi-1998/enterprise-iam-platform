@@ -37,21 +37,18 @@ public class UserController {
     // ALL roles → get own profile
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<UserResponse> getMyProfile(
-            Authentication authentication) {
+    public ResponseEntity<UserResponse> getMyProfile(Authentication authentication) {
         String username = authentication.getName();
         return ResponseEntity.ok(userService.getUserByUsername(username));
     }
 
-    // ADMIN + MANAGER → update user
+    // ADMIN only → update user
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
     public ResponseEntity<UserResponse> updateUser(
             @PathVariable Long id,
-            @RequestBody UpdateUserRequest request,
-            Authentication authentication) {
-        String updatedBy = authentication.getName();
-        return ResponseEntity.ok(userService.updateUser(id, request, updatedBy));
+            @RequestBody UpdateUserRequest request) {
+        return ResponseEntity.ok(userService.updateUser(id, request));
     }
 
     // ADMIN only → assign roles
@@ -59,20 +56,15 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponse> assignRoles(
             @PathVariable Long id,
-            @RequestBody Set<String> roles,
-            Authentication authentication) {
-        String assignedBy = authentication.getName();
-        return ResponseEntity.ok(userService.assignRoles(id, roles, assignedBy));
+            @RequestBody Set<String> roles) {
+        return ResponseEntity.ok(userService.assignRoles(id, roles));
     }
 
     // ADMIN only → delete user
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> deleteUser(
-            @PathVariable Long id,
-            Authentication authentication) {
-        String deletedBy = authentication.getName();
-        userService.deleteUser(id, deletedBy);
+    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
         return ResponseEntity.ok("User deleted successfully");
     }
 }

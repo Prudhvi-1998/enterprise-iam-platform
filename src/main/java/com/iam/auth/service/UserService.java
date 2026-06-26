@@ -18,18 +18,16 @@ public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
-    private final AuditLogService auditLogService;
 
     public UserService(UserRepository userRepository,
                        RoleRepository roleRepository,
-                       PasswordEncoder passwordEncoder,
-                       AuditLogService auditLogService) {
+                       PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
-        this.auditLogService = auditLogService;
     }
 
+    // Get all users
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll()
                 .stream()
@@ -37,51 +35,43 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    // Get user by id
     public UserResponse getUserById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return UserResponse.fromUser(user);
     }
 
+    // Get user by username
     public UserResponse getUserByUsername(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return UserResponse.fromUser(user);
     }
 
-    public UserResponse updateUser(Long id, UpdateUserRequest request,
-                                   String updatedBy) {
+    // Update user
+    public UserResponse updateUser(Long id, UpdateUserRequest request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (request.getEmail() != null) {
             user.setEmail(request.getEmail());
         }
+
         if (request.getPassword() != null) {
             user.setPassword(passwordEncoder.encode(request.getPassword()));
         }
+
         if (request.getStatus() != null) {
             user.setStatus(User.UserStatus.valueOf(request.getStatus()));
         }
 
         userRepository.save(user);
-
-        // Log the event
-        auditLogService.log(
-                user.getId(),
-                updatedBy,
-                "UPDATE_USER",
-                "/api/users/" + id,
-                "User updated: " + user.getUsername() + " by " + updatedBy,
-                "unknown",
-                "SUCCESS"
-        );
-
         return UserResponse.fromUser(user);
     }
 
-    public UserResponse assignRoles(Long id, Set<String> roleNames,
-                                    String assignedBy) {
+    // Assign roles to user
+    public UserResponse assignRoles(Long id, Set<String> roleNames) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -94,37 +84,13 @@ public class UserService {
 
         user.setRoles(roles);
         userRepository.save(user);
-
-        // Log the event
-        auditLogService.log(
-                user.getId(),
-                assignedBy,
-                "ASSIGN_ROLE",
-                "/api/users/" + id + "/roles",
-                "Roles assigned to " + user.getUsername()
-                        + ": " + roleNames + " by " + assignedBy,
-                "unknown",
-                "SUCCESS"
-        );
-
         return UserResponse.fromUser(user);
     }
 
-    public void deleteUser(Long id, String deletedBy) {
+    // Delete user
+    public void deleteUser(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-
-        // Log before deleting
-        auditLogService.log(
-                user.getId(),
-                deletedBy,
-                "DELETE_USER",
-                "/api/users/" + id,
-                "User deleted: " + user.getUsername() + " by " + deletedBy,
-                "unknown",
-                "SUCCESS"
-        );
-
         userRepository.delete(user);
     }
 }
