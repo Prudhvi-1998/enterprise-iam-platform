@@ -6,8 +6,8 @@ body:
   type: json
   content: |-
     {
-      "username": "testuser",
-      "email": "test@example.com",
-      "password": "secret123"
+      "username": "testuser2",
+      "email": "test2@example.com",
+      "password": "secret1234"
     }
 order: 1782415756976

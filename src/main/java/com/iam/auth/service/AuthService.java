@@ -3,11 +3,14 @@ package com.iam.auth.service;
 import com.iam.auth.dto.JwtResponse;
 import com.iam.auth.dto.LoginRequest;
 import com.iam.auth.dto.RegisterRequest;
+import com.iam.auth.entity.RefreshToken;
 import com.iam.auth.entity.Role;
 import com.iam.auth.entity.User;
 import com.iam.auth.repository.RoleRepository;
 import com.iam.auth.repository.UserRepository;
 import com.iam.auth.security.JwtUtils;
+import com.iam.auth.service.AuditLogService;
+import com.iam.auth.service.RefreshTokenService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -23,17 +26,23 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
+    private final AuditLogService auditLogService;
+    private final RefreshTokenService refreshTokenService;
 
     public AuthService(UserRepository userRepository,
                        RoleRepository roleRepository,
                        PasswordEncoder passwordEncoder,
                        AuthenticationManager authenticationManager,
-                       JwtUtils jwtUtils) {
+                       JwtUtils jwtUtils,
+                       AuditLogService auditLogService,
+                       RefreshTokenService refreshTokenService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtUtils = jwtUtils;
+        this.auditLogService = auditLogService;
+        this.refreshTokenService = refreshTokenService;
     }
 
     public String register(RegisterRequest request) {
@@ -75,6 +84,13 @@ public class AuthService {
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        return new JwtResponse(token, user.getUsername(), user.getEmail());
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getUsername());
+
+        return new JwtResponse(
+                token,
+                refreshToken.getToken(),
+                user.getUsername(),
+                user.getEmail()
+        );
     }
 }

@@ -9,3 +9,7 @@ variables:
     secret: true
   - key: bearer_token_16m4
     secret: true
+  - key: bearer_token_0psc
+    secret: true
+  - key: json_web_token_077y
+    secret: true

@@ -1,4 +1,10 @@
 $kind: http-request
-url: ""
-method: GET
+name: Assign Role to User (ADMIN only)
+url: http://localhost:8080/api/users/1/roles
+method: PUT
+headers:
+  Authorization: Bearer {{json_web_token_077y}}
+body:
+  type: json
+  content: '["EMPLOYEE"]'
 order: 4436327965881263

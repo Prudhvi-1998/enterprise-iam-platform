@@ -1,4 +1,7 @@
 $kind: http-request
-url: ""
-method: GET
+name: Delete User (ADMIN only)
+url: http://localhost:8080/api/users/2
+method: DELETE
+headers:
+  Authorization: Bearer {{json_web_token_077y}}
 order: 4482927452624081
