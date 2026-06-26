@@ -1,4 +1,7 @@
 $kind: http-request
-url: ""
+name: Get All Users
+url: http://localhost:8080/api/users
 method: GET
+headers:
+  Authorization: "{{bearer_token_0psc}}"
 order: 3393680648153572
